@@ -34,16 +34,20 @@ app.UseExceptionHandler(exceptionHandlerApp =>
         {
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
 
-            await Results.Problem(statusCode: StatusCodes.Status502BadGateway, title: "External service error",
+            await Results.Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "External service error",
                 detail: exception.Message)
-                    .ExecuteAsync(context);
+                .ExecuteAsync(context);
 
             return;
         }
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-        await Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: "Internal server error")
+        await Results.Problem(
+            statusCode: StatusCodes.Status500InternalServerError,
+            title: "Internal server error")
             .ExecuteAsync(context);
     });
 });
