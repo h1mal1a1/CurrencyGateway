@@ -1,0 +1,6 @@
+@CurrencyGateway.Api_HostAddress = http://localhost:5197
+
+GET {{CurrencyGateway.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
