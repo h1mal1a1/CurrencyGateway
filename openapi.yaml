@@ -1,0 +1,92 @@
+openapi: 3.0.3
+
+info:
+  title: Currency Gateway API
+  version: 1.0.0
+  description: >
+    API for retrieving currency exchange rates from the Bank of Russia.
+
+servers:
+  - url: http://localhost:5197
+
+paths:
+  /api/currencies:
+    get:
+      summary: Get currency rates
+      description: >
+        Returns currency rates for the specified date.
+        If code is not specified, all currencies are returned.
+        If date is not specified, the current date is used.
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Currency rate date.
+
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 3
+            example: USD
+          description: Three-letter currency code.
+
+      responses:
+        '200':
+          description: Currency rates successfully received.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyRateResponse'
+
+        '204':
+          description: Requested currency was not found.
+
+        '400':
+          description: Invalid request parameters.
+
+        '500':
+          description: Internal server error.
+
+        '502':
+          description: Error while requesting data from the Bank of Russia.
+
+components:
+  schemas:
+    CurrencyRateResponse:
+      type: object
+      required:
+        - code
+        - name
+        - nominal
+        - value
+        - date
+      properties:
+        code:
+          type: string
+          example: USD
+
+        name:
+          type: string
+          example: Доллар США
+
+        nominal:
+          type: integer
+          example: 1
+
+        value:
+          type: number
+          format: decimal
+          example: 85.4811
+
+        date:
+          type: string
+          format: date
+          example: 2026-10-08
