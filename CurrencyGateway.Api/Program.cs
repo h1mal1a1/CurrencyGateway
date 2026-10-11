@@ -4,6 +4,7 @@ using CurrencyGateway.Application.Services;
 using CurrencyGateway.Infrastructure.Cbr;
 using CurrencyGateway.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.OpenApi.Models;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -11,8 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+builder.Services.AddSwaggerGen(options =>
+{
+    options.MapType<DateOnly>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "date"
+    });
+});
 builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();

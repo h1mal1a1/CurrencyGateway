@@ -6,6 +6,7 @@ namespace CurrencyGateway.Api.Controllers;
 
 [ApiController]
 [Route("api/currencies")]
+[Produces("application/json")]
 public class CurrenciesController(ICurrencyService currencyService) : ControllerBase
 {
     private readonly ICurrencyService _currencyService = currencyService;
@@ -13,19 +14,25 @@ public class CurrenciesController(ICurrencyService currencyService) : Controller
     [HttpGet]
     [ProducesResponseType(typeof(CurrencyRateResponse[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status502BadGateway)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status502BadGateway)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAsync([FromQuery] DateOnly? date, [FromQuery] string? code,
         CancellationToken cancellationToken)
     {
         if (date.HasValue && date.Value > DateOnly.FromDateTime(DateTime.Today))
-            return BadRequest("Date cannot be in the future.");
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid request",
+                detail: "Date cannot be in the future.");
 
         code = code?.Trim().ToUpperInvariant();
 
         if (!string.IsNullOrWhiteSpace(code) && code.Length != 3)
-            return BadRequest("Currency code must contain 3 characters.");
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid request",
+                detail: "Currency code must contain 3 characters.");
 
         var rates = await _currencyService.GetRatesAsync(date, code, cancellationToken);
 
